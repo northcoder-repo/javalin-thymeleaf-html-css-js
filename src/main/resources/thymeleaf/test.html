@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="/js/my_script.js"></script>
+        <link rel="stylesheet" type="text/css" href="/css/main.css"/>
+    </head>
+
+    <body>
+        <div class="myStyle">
+            <div th:text="${hello}"></div>
+            <br>
+            <button type="button" onclick="getValue()">Show JS value</button>
+            <br><br>
+            <div id="test123"></div>
+        </div>
+    </body>
+</html>

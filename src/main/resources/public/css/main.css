@@ -1,0 +1,8 @@
+.myStyle {
+    font-family: Arial, sans-serif;
+    padding: 1em;
+    margin: 1em;
+    display: inline-block;
+    color: white;
+    background-color: /*[[${backgroundColor}]]*/ pink;
+}
