@@ -8,6 +8,7 @@ import io.javalin.plugin.rendering.template.JavalinThymeleaf;
 import java.util.HashMap;
 import java.util.Map;
 import org.thymeleaf.context.Context;
+import org.thymeleaf.templatemode.TemplateMode;
 
 public class App {
 
@@ -19,7 +20,10 @@ public class App {
         Javalin app = Javalin.create(config -> {
             config.addStaticFiles("/public");
             JavalinRenderer.register(JavalinThymeleaf.INSTANCE);
-            JavalinThymeleaf.configure(ThymeleafConfig.templateEngine());
+            JavalinThymeleaf.configure(ThymeleafConfig.templateEngine(
+                    ThymeleafConfig.templateResolver(
+                            TemplateMode.HTML, "/thymeleaf/", ".html"))
+            );
         }).start(7001);
 
         app.routes(() -> {
@@ -39,16 +43,31 @@ public class App {
         String jsFileName = ctx.pathParam("jsFile");
         Context thymeleafCtx = new Context();
         thymeleafCtx.setVariable("jsTest", "This string is from a JS file");
-        ctx.contentType("application/javascript");
-        ctx.result(ThymeleafConfig.getJsTemplate(jsFileName, thymeleafCtx));
+        ResourceResponse resourceResponse = renderedFileAsStream(jsFileName,
+                thymeleafCtx, TemplateMode.JAVASCRIPT);
+        sendResult(resourceResponse, "application/javascript", ctx);
     };
 
     private static final Handler CSS = (ctx) -> {
         String cssFileName = ctx.pathParam("cssFile");
         Context thymeleafCtx = new Context();
         thymeleafCtx.setVariable("backgroundColor", "goldenrod");
-        ctx.contentType("text/css");
-        ctx.result(ThymeleafConfig.getCssTemplate(cssFileName, thymeleafCtx));
+        ResourceResponse resourceResponse = renderedFileAsStream(cssFileName,
+                thymeleafCtx, TemplateMode.CSS);
+        sendResult(resourceResponse, "text/css", ctx);
     };
+    
+    private static void sendResult(ResourceResponse resourceResponse, 
+            String contentType, io.javalin.http.Context ctx) {
+        ctx.contentType(contentType);
+        ctx.status(resourceResponse.getHttpStatus());
+        ctx.result(resourceResponse.getResponse());
+    }
+
+    private static ResourceResponse renderedFileAsStream(String cssFileName,
+            Context thymeleafCtx, TemplateMode templateMode) {
+        return ThymeleafConfig.renderTemplate(cssFileName, thymeleafCtx,
+                templateMode);
+    }
 
 }
